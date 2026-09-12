@@ -1,6 +1,6 @@
 {
   "name": "@sky22333/codex-fast",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Windows Codex 桌面版冷启动加速 CLI",
   "type": "module",
   "bin": {
