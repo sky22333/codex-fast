@@ -1,0 +1,62 @@
+name: 构建并发布到 npm
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  # OIDC 可信发布
+  id-token: write
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+env:
+  NPM_REGISTRY: https://registry.npmjs.org/
+
+jobs:
+  publish:
+    name: 构建、测试并发布
+    runs-on: windows-latest
+    steps:
+      - name: 检出源码
+        uses: actions/checkout@v7
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          package-manager-cache: false
+
+      - name: 安装 Zig
+        uses: mlugg/setup-zig@v2.2.1
+        with:
+          version: "0.16.0"
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 构建并测试
+        run: npm run check
+
+      - name: 配置 npm 发布凭据
+        shell: pwsh
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          $lines = @("registry=$env:NPM_REGISTRY")
+          if ([string]::IsNullOrWhiteSpace($env:NPM_TOKEN)) {
+            $mode = "OIDC 可信发布（未配置 NPM_TOKEN）"
+          } else {
+            $lines += "//registry.npmjs.org/:_authToken=$env:NPM_TOKEN"
+            $mode = "NPM_TOKEN 令牌发布"
+          }
+          $lines | Set-Content -Path .npmrc -Encoding utf8NoBOM
+          "发布方式：$mode" >> $env:GITHUB_STEP_SUMMARY
+
+      - name: 校验运行必需文件
+        run: node scripts/verify-package.mjs
+
+      - name: 发布到 npm
+        run: npm publish --ignore-scripts

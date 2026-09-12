@@ -1,0 +1,58 @@
+{
+  "name": "@sky22333/codex-fast",
+  "version": "0.1.0",
+  "description": "Windows Codex 桌面版冷启动加速 CLI",
+  "type": "module",
+  "bin": {
+    "codex-fast": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.test.js",
+    "!dist/**/*.js.map",
+    "!dist/**/*.d.ts",
+    "native/bin/codex-launch-helper.exe",
+    "NOTICE.md"
+  ],
+  "os": [
+    "win32"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "engines": {
+    "node": ">=22.14.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "clean": "node scripts/clean.mjs",
+    "build:zig": "node scripts/build-zig.mjs",
+    "build:ts": "tsc -p tsconfig.json",
+    "build": "npm run clean && npm run build:zig && npm run build:ts",
+    "test": "node --test dist/*.test.js",
+    "check": "npm run build && npm test",
+    "prepack": "npm run check"
+  },
+  "keywords": [
+    "codex",
+    "openai",
+    "windows",
+    "startup",
+    "cli"
+  ],
+  "license": "AGPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sky22333/codex-fast.git"
+  },
+  "homepage": "https://github.com/sky22333/codex-fast#readme",
+  "bugs": {
+    "url": "https://github.com/sky22333/codex-fast/issues"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "typescript": "^5.9.3"
+  }
+}
